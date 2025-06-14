@@ -1,41 +1,57 @@
+import streamlit as st
+import altair as alt
 import pandas as pd
-import matplotlib.pyplot as plt
 
+# Configures DataFrame and returns the DataFrame and list of countries in the dataset
+@st.cache_data
+def setup_data():
+    df = pd.read_csv("owid-covid-data.csv")
+
+    df["date"] = pd.to_datetime(df["date"]) # ensure datetime
+    us_df = df[df["location"] == "United States"] # choose country
+    us_df = us_df[["date", "total_cases"]].copy().reset_index(drop=True)
+    return us_df
+
+# Main function
 def main():
-  # Setup
-  df = pd.read_csv("owid-covid-data.csv")
-  list_of_countries = df["location"].unique().tolist()
+    # Setup
+    us_data = setup_data()
+    
+    hover = alt.selection_point(
+        fields=["date"],
+        nearest=True,
+        on="mouseover",
+        empty="none",
+    )
 
-  while(True):
-    # User selects a country
-    is_a_country = False
-    print("Please select a country.")
-    while (is_a_country == False):
-      country = input()
-      if (country not in list_of_countries):
-        print("Please try again.")
-      else:
-          is_a_country = True
+    lines = (
+        alt.Chart(us_data, title="Total COVID-19 Cases in the United States")
+        .mark_line()
+        .encode(
+            x="date:T",
+            y="total_cases:Q",
+        )
+    )
 
-    print(f'You have selected {country}.')
-    print(f'Here is covid data relating to {country}.')
+    points = lines.transform_filter(hover).mark_circle(size=65)
 
-    # Selecting specific country
-    country_df = df[df["location"] == country].copy()
-    # Converting date into datetime objects and sorting data by date
-    country_df["date"] = pd.to_datetime(country_df["date"])
-    country_df = country_df.sort_values(by="date")
+    tooltips = (
+        alt.Chart(us_data)
+        .mark_rule()
+        .encode(
+            x="date:T",
+            opacity=alt.condition(hover, alt.value(0.3), alt.value(0)),
+            tooltip=[
+                alt.Tooltip("date:T", title="Date"),
+                alt.Tooltip("total_cases:Q", title="Total Cases"),
+            ],
+        )
+        .add_params(hover)
+    )
 
-    # Plot daily new cases
-    plt.figure(figsize=(10,4))
-    plt.plot(country_df["date"], country_df["new_cases"], label="New Cases", color="blue")
-    plt.plot(country_df["date"], country_df["new_deaths"], label="New Deaths", color="red")
-    plt.title(f"Daily COVID-19 Cases and Deaths in {country}")
-    plt.xlabel("Date")
-    plt.ylabel("Count")
-    plt.legend()
-    plt.tight_layout()
-    plt.show()
+    data_layer = lines + points + tooltips
+
+    st.altair_chart(data_layer, use_container_width=True)
 
 if __name__ == "__main__":
   main()
