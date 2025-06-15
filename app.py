@@ -11,7 +11,8 @@ def load_data():
 
 # Main function
 def main():
-    st.title(body="COVID-19 Cases per Country")
+    st.title(body=":red[COVID-19] Cases per Country")
+    st.markdown(":rainbow[By Jinlin3]")
     st.markdown("This dashboard displays confirmed COVID-19 cases from 2020 to 2024.")
     # Setup
     df = load_data()
