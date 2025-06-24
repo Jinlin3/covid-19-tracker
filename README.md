@@ -1,13 +1,14 @@
 # 📊 COVID-19 Tracker Dashboard
 
-An interactive web dashboard built with **Python**, **Streamlit**, and **Altair** to visualize global COVID-19 case trends by country. Users can select a country and view total confirmed COVID-19 cases over time, with interactive charts, tooltips, and hover effects.
+An interactive web dashboard built with **Python**, **Streamlit**, and **Altair** to visualize global COVID-19 case trends by country. Users can select a country and view data sets pertaining to COVID-19, with interactive charts, tooltips, and hover effects.
 
 ---
 
 ## 🚀 Features
 
 - Country selector dropdown (default: United States)
-- Line chart of total confirmed COVID-19 cases over time
+- Line chart of total COVID-19 cases and total deaths over time
+- Bar chart of new COVID-19 cases and new deaths over time
 - Interactive hover tooltips showing case counts by date
 - Clean, responsive layout powered by Streamlit
 - Cached data loading for performance optimization
