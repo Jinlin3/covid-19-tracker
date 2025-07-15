@@ -27,7 +27,6 @@ An interactive web dashboard built with **Python**, **Streamlit**, and **Altair*
 
 ## 📝 To-Do
 
-- **Rolling Averages** - by using daily cases and deaths
 - **Comparisons** - able to compare locations on a single graph
 
 ---
