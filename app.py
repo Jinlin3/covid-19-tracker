@@ -9,18 +9,6 @@ def load_data():
    df["date"] = pd.to_datetime(df["date"]) # ensure datetime
    df = df.sort_values(by=["location", "date"])
 
-   # compute smoothing for total_cases and total_deaths
-   to_smooth = {
-       "total_cases": "total_cases_smoothed",
-       "total_deaths": "total_deaths_smoothed"
-   }
-   
-   for orig_col, smooth_col in to_smooth.items():
-       if smooth_col not in df.columns:
-           df[smooth_col] = df.groupby("location")[orig_col].transform(
-               lambda x: x.rolling(window=7, min_periods=1).mean()
-           )
-
    return df
 
 # Main function
@@ -56,11 +44,7 @@ def main():
     default_selected_data_index = options.index("New Cases")
     selected_data = st.selectbox(label="What data do you want to view?", options=options, index=default_selected_data_index)
 
-    # Checkbox for smoothed data
-    use_smoothed = st.checkbox("Show 7-day rolling average (smoothed data)")
     column_key = data_mapping[selected_data]
-    if use_smoothed:
-        column_key += "_smoothed"
 
     # update df based on location
     data = df[df["location"] == selected_location]
@@ -70,8 +54,6 @@ def main():
     
     # title
     chart_title = f"{selected_data} in {selected_location}"
-    if use_smoothed:
-        chart_title += " (Smoothed)"
 
     # chart logic and coloring
     mark = alt.Chart(data, title=chart_title)
@@ -104,7 +86,6 @@ def main():
         file_name=f"{selected_location}_{column_key}.csv",
         mime="text/csv"
     )
-
 
 if __name__ == "__main__":
   main()
