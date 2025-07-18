@@ -25,12 +25,6 @@ An interactive web dashboard built with **Python**, **Streamlit**, and **Altair*
 
 ---
 
-## 📝 To-Do
-
-- **Comparisons** - able to compare locations on a single graph
-
----
-
 ## 📁 Data Source
 
 Data is sourced from [Our World in Data](https://ourworldindata.org/covid-cases).

@@ -13,9 +13,9 @@ def load_data():
 
 # Main function
 def main():
-    st.title(body=":red[COVID-19] Cases per Country")
+    st.title(body="Global :red[COVID-19] Tracker")
     st.markdown(":rainbow[By Jinlin3]")
-    st.markdown("This dashboard displays confirmed COVID-19 cases throughout the years of the pandemic.")
+    st.markdown("This dashboard displays graphical data regarding the spread of COVID-19 and its effects on populations across the globe.")
 
     # Setup
     df = load_data()
@@ -37,42 +37,45 @@ def main():
     }
     
     # user selects location
-    default_locations_index = locations.index("United States")
-    selected_location = st.selectbox(label="Choose a location", options=locations, index=default_locations_index)
+    selected_locations = st.multiselect(
+        "Select one or more countries", options=locations, default=["United States"]
+    )
 
     # user selects data
-    default_selected_data_index = options.index("New Cases")
-    selected_data = st.selectbox(label="What data do you want to view?", options=options, index=default_selected_data_index)
+    selected_data = st.selectbox(label="What data do you want to view?", options=options, index=0)
 
     column_key = data_mapping[selected_data]
 
-    # update df based on location
-    data = df[df["location"] == selected_location]
+    # update df based on locations selected
+    filtered_data = df[df["location"].isin(selected_locations)].copy()
 
-    # update df based on selected data
-    data = data[["date", column_key]].copy().reset_index(drop=True)
+    # trim the dataset columns to date, location, and the selected data
+    filtered_data = filtered_data[["date", "location", column_key]].copy().reset_index(drop=True)
     
     # title
-    chart_title = f"{selected_data} in {selected_location}"
+    chart_title = f"{selected_data} Comparison"
 
     # chart logic and coloring
-    mark = alt.Chart(data, title=chart_title)
+    mark = alt.Chart(filtered_data, title=chart_title)
     match selected_data:
         case "Total Cases":
-            mark = mark.mark_line(color="lightgreen")
+            mark = mark.mark_line()
         case "New Cases":
-            mark = mark.mark_bar(color="blue")
+            mark = mark.mark_bar()
         case "Total Deaths":
-            mark = mark.mark_line(color="crimson")
+            mark = mark.mark_line()
         case "New Deaths":
-            mark = mark.mark_bar(color="orange")
+            mark = mark.mark_bar()
 
+    # create chart
     chart = mark.encode(
         x=alt.X("date:T", title="Date", axis=alt.Axis(format="%Y", tickCount="year")),
         y=alt.Y(f"{column_key}:Q", title=selected_data),
+        color=alt.Color("location:N", title="Country"),
         tooltip = [
            alt.Tooltip("date:T", title="Date"),
-           alt.Tooltip(f"{column_key}:Q", title=selected_data)
+           alt.Tooltip(f"{column_key}:Q", title=selected_data),
+           alt.Tooltip("location:N", title="Country")
         ]
     )
 
@@ -82,8 +85,8 @@ def main():
     # Download CSV button
     st.download_button(
         label="Download CSV",
-        data=data.to_csv(index=False),
-        file_name=f"{selected_location}_{column_key}.csv",
+        data=filtered_data.to_csv(index=False),
+        file_name=f"{'_'.join(selected_locations)}_{column_key}.csv",
         mime="text/csv"
     )
 
